@@ -758,7 +758,7 @@ const TestNode = TestTree.Node;
 test "insert, search, inorder, remove" {
     var tree = TestTree{};
     try std.testing.expect(tree.isEmpty());
-    const count = 1000;
+    const count = 1000000;
 
     var reference = try std.ArrayListUnmanaged(TestNode).initCapacity(std.testing.allocator, count);
     defer reference.deinit(std.testing.allocator);
@@ -777,6 +777,7 @@ test "insert, search, inorder, remove" {
         std.log.debug("Inserting: {}", .{item.payload});
         tree.insert(item);
 
+        if (i % (count / 10) != 0) continue;
         var iter = tree.inorder();
         var j: u64 = 0;
         var prev: TestInt = 0;
@@ -800,6 +801,7 @@ test "insert, search, inorder, remove" {
         try std.testing.expect(node_opt != null);
         tree.remove(node_opt.?);
 
+        if (i % (count / 10) != 0) continue;
         var iter = tree.inorder();
         var j: u64 = 0;
         var prev: TestInt = 0;
