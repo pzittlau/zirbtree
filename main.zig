@@ -48,20 +48,18 @@ pub fn main() !void {
         .{ .id = 7, .name = "seven" },
     };
 
-    var nodes = std.ArrayList(*MyDataNode).init(allocator);
-    defer {
-        for (nodes.items) |node| {
-            allocator.destroy(node);
-        }
-        nodes.deinit();
-    }
+    var nodes = std.ArrayList(MyDataNode).empty;
+    try nodes.ensureTotalCapacity(allocator, data_to_insert.len);
+    defer nodes.deinit(allocator);
 
     std.debug.print("Inserting nodes...\n", .{});
-    for (data_to_insert) |data| {
-        const node = try allocator.create(MyDataNode);
-        node.* = .{ .id = data.id, .name = data.name, .node = .{} };
-        try nodes.append(node);
-        tree.insert(&node.node, {}, compareNodes);
+    for (data_to_insert, 0..) |data, i| {
+        nodes.appendAssumeCapacity(.{
+            .id = data.id,
+            .name = data.name,
+            .node = .{},
+        });
+        tree.insert(&nodes.items[i].node, {}, compareNodes);
         std.debug.print("\tInserted: id = {d}, name = {s}\n", .{ data.id, data.name });
     }
 
